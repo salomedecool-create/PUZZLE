@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>PUSSY</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f7f7f7; text-align:center; padding:20px; }
+.hidden { display:none; }
+.grid { display:grid; grid-template-columns:repeat(6,80px); grid-gap:10px; justify-content:center; margin-top:20px; }
+.case { width:80px; height:80px; background:#ccc; display:flex; align-items:center; justify-content:center; font-size:22px; border-radius:6px; cursor:pointer; transition:0.3s; font-weight:bold; }
+.case.opened { background:#4CAF50; color:white; cursor:default; }
+.case.locked-today { background:#bbb; cursor:not-allowed; }
+#imageZone img { max-width:250px; border-radius:8px; margin-top:20px; }
+#finalVideo { margin-top:20px; display:none; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : PRENOM -->
+<div id="welcome">
+    <h2>Mon amoureux ❤️</h2>
+    <p>Écris ton prénom :</p>
+    <input id="nameInput" type="text" placeholder="Ton prénom">
+    <br><br>
+    <button onclick="start()">Commencer</button>
+</div>
+
+<!-- PAGE 2 : CALENDRIER -->
+<div id="calendarPage" class="hidden">
+    <h1 id="title"></h1>
+    <p>Tu peux ouvrir <b>une case par jour</b>.</p>
+    <div id="grid" class="grid"></div>
+    <div id="imageZone"></div>
+    <div id="finalVideo">
+        <h2>🎁 Bravo mon amour ! 🎁</h2>
+        <video width="320" controls>
+            <source src="video/finale.mp4" type="video/mp4">
+            Vidéo non supportée.
+        </video>
+    </div>
+</div>
+
+<script>
+let username = "";
+let openedCases = [];
+let lastOpenDate = "";
+const today = new Date().toISOString().split("T")[0];
+
+const images = [];
+for (let i = 1; i <= 24; i++) images.push(`img/img${i}.jpg`);
+
+function start() {
+    username = document.getElementById("nameInput").value.trim();
+    if (!username) { alert("Écris ton prénom mon amour ❤️"); return; }
+
+    openedCases = JSON.parse(localStorage.getItem("progress_" + username)) || [];
+    lastOpenDate = localStorage.getItem("lastOpenDate_" + username);
+
+    document.getElementById("welcome").classList.add("hidden");
+    document.getElementById("calendarPage").classList.remove("hidden");
+    document.getElementById("title").textContent = "Pour toi, " + username + " ❤️";
+
+    loadCalendar();
+}
+
+function loadCalendar() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    for (let i = 1; i <= 24; i++) {
+        const div = document.createElement("div");
+        div.classList.add("case");
+        div.textContent = i;
+
+        if (openedCases.includes(i)) div.classList.add("opened");
+        if (lastOpenDate === today &&
